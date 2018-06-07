@@ -22,12 +22,12 @@ from urlresolver import common
 from urlresolver.resolver import UrlResolver, ResolverError
 
 class StreamableResolver(UrlResolver):
-    name = "Streamable"
-    domains = ['streamable.com']
-    pattern = '(?://|\.)(streamable\.com)/(?:s/)?([a-zA-Z0-9]+(?:/[a-zA-Z0-9]+)?)'
+	name = "Streamable"
+	domains = ['streamable.com']
+	pattern = '(?://|\.)(streamable\.com)/(?:s/)?([a-zA-Z0-9]+(?:/[a-zA-Z0-9]+)?)'
 
-    def __init__(self):
-        self.net = common.Net()
+	def __init__(self):
+		self.net = common.Net()
 
     def get_media_url(self, host, media_id):
         web_url = self.get_url(host, media_id)
@@ -44,6 +44,6 @@ class StreamableResolver(UrlResolver):
             return helpers.pick_source(sources).replace('&amp;','&') + helpers.append_headers(headers)
         else:
             raise ResolverError('JSON Not Found')
-
-    def get_url(self, host, media_id):
-        return self._default_get_url(host, media_id, template='https://{host}/s/{media_id}')
+      
+	def get_url(self, host, media_id):
+		return self._default_get_url(host, media_id, template='https://{host}/s/{media_id}') 
