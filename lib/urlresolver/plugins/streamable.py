@@ -22,28 +22,29 @@ from urlresolver import common
 from urlresolver.resolver import UrlResolver, ResolverError
 
 class StreamableResolver(UrlResolver):
-    name = "Streamable"
-    domains = ['streamable.com']
-    pattern = '(?://|\.)(streamable\.com)/(?:s/)?([a-zA-Z0-9]+(?:/[a-zA-Z0-9]+)?)'
+	name = "Streamable"
+	domains = ['streamable.com']
+	pattern = '(?://|\.)(streamable\.com)/(?:s/)?([a-zA-Z0-9]+(?:/[a-zA-Z0-9]+)?)'
 
-    def __init__(self):
-        self.net = common.Net()
+	def __init__(self):
+		self.net = common.Net()
 
-    def get_media_url(self, host, media_id):
-        web_url = self.get_url(host, media_id)
-        headers = {'User-Agent': common.RAND_UA}
-        html = self.net.http_GET(web_url, headers=headers).content
-        match = re.search('videoObject\s*=\s*(.*?});', html)
-        if match:
-            try: js_data = json.loads(match.group(1))
-            except: js_data = {}
-            streams = js_data.get('files', {})
-            sources = [(stream.get('height', 'Unknown'), stream['url']) for _key, stream in streams.iteritems()]
-            sources = [(label, 'https:' + stream_url) if stream_url.startswith('//') else (label, stream_url) for label, stream_url in sources]
-            sources.sort(key=lambda x: x[0], reverse=True)
-            return helpers.pick_source(sources) + helpers.append_headers(headers)
-        else:
-            raise ResolverError('JSON Not Found')
+	def get_media_url(self, host, media_id):
+		web_url = self.get_url(host, media_id)
+		headers = {'User-Agent': common.RAND_UA}
+		html = self.net.http_GET(web_url, headers=headers).content
+		match = re.search('videoObject\s*=\s*(.*?});', html)
+		if match:
+			try: js_data = json.loads(match.group(1))
+			except: js_data = {}
+			streams = js_data.get('files', {})
+			sources = [(stream.get('height', 'Unknown'), stream['url']) for _key, stream in streams.iteritems()]
+			sources = [(label, 'https:' + stream_url) if stream_url.startswith('//') else (label, stream_url) for label, stream_url in sources]
+			sources.sort(key=lambda x: x[0], reverse=True)
+			return helpers.pick_source(sources).replace('&amp;','&') + helpers.append_headers(headers)
+			
+		else:
+			raise ResolverError('JSON Not Found')
 
-    def get_url(self, host, media_id):
-        return self._default_get_url(host, media_id, template='https://{host}/s/{media_id}')
+	def get_url(self, host, media_id):
+		return self._default_get_url(host, media_id, template='https://{host}/s/{media_id}') 
