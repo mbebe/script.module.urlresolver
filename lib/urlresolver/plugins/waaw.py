@@ -18,7 +18,6 @@ from lib import unwise
 from urlresolver import common
 from urlresolver.resolver import UrlResolver, ResolverError
 
-
 class WaawResolver(UrlResolver):
     name = "waaw"
     domains = ["waaw.tv", "hqq.watch", "netu.tv", "hqq.tv"]
@@ -32,10 +31,9 @@ class WaawResolver(UrlResolver):
         headers = {'User-Agent': common.FF_USER_AGENT,
                    'Referer': 'https://waaw.tv/watch_video.php?v=%s&post=1' % media_id}
         html = self.net.http_GET(web_url, headers=headers).content
-
         if html:
             try:
-                data_unwise = JsUnwiser().unwiseAll(html)
+                data_unwise = unwise.unwise_process(html)
                 try:
                     at = re.search('&at=(.*?)&', data_unwise, re.I).groups()[0]
                 except:
@@ -55,11 +53,9 @@ class WaawResolver(UrlResolver):
 
                 data_unwise_player = ""
                 wise = ""
-                wise = re.search('''<script type=["']text/javascript["']>\s*;?(eval.*?)</script>''', data_player,
-                                 re.DOTALL | re.I)
+                wise = re.search('''<script type=["']text/javascript["']>\s*;?(eval.*?)</script>''', data_player, re.DOTALL | re.I)
                 if wise:
                     data_unwise_player = unwise.unwise_process(data_player)
-
                 try:
                     vars_data = re.search('/player/get_md5.php",\s*\{(.*?)\}', data, re.DOTALL | re.I).groups()[0]
                 except:
@@ -111,5 +107,5 @@ class WaawResolver(UrlResolver):
         return s2.decode('unicode-escape').encode('ASCII', 'ignore')
 
     def get_url(self, host, media_id):
-        return self._default_get_url(host, media_id,
-                                     template='http://hqq.watch/player/embed_player.php?vid={media_id}&autoplay=no')
+        return self._default_get_url(host, media_id, template='http://hqq.watch/player/embed_player.php?vid={media_id}&autoplay=no')
+		
